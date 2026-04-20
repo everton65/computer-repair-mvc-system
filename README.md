@@ -1,116 +1,104 @@
-# 🖥️ Sistema de Gestão para Assistência Técnica de Computadores
+# 🖥️ Cleitinho TI — Sistema de Gestão para Assistência Técnica
 
-Sistema desenvolvido em **Python** utilizando arquitetura **MVC (Model-View-Controller)** para gerenciamento de uma assistência técnica de computadores.
-
-O sistema permite registrar **clientes, peças utilizadas em reparos, serviços realizados e gerar relatórios**, com persistência de dados em arquivos **JSON**.
+Sistema completo de gestão para assistências técnicas de computadores, desenvolvido em **Python** com arquitetura moderna de **API REST desacoplada**.
 
 ---
 
-# 📌 Funcionalidades
+## 🚀 Tecnologias
 
-* Cadastro de clientes
-* Registro de serviços realizados
-* Controle de peças utilizadas
-* Geração de relatórios de atendimento
-* Armazenamento de dados em arquivos JSON
+**Backend**
+- FastAPI + Uvicorn
+- SQLAlchemy (ORM)
+- Pydantic v2 (validação de schemas)
+- SQLite (estrutura pronta para migração)
 
----
-
-# 🛠 Tecnologias Utilizadas
-
-* Python
-* JSON
-* Arquitetura MVC (Model-View-Controller)
+**Frontend**
+- Flask + Jinja2
+- HTML/CSS + Bootstrap
 
 ---
 
-# 📂 Estrutura do Projeto
+## 📦 Funcionalidades
+
+- Gestão de clientes
+- Ordens de Serviço com itens e controle de status
+- Cadastro de peças e controle de estoque
+- Registro de serviços com faturamento
+- Dashboard com métricas em tempo real
+
+---
+
+## 📂 Estrutura do Projeto
 
 ```text
 cleitinho-projeto/
 │
-├── controllers/
-│   ├── cliente_controller.py
-│   ├── peca_controller.py
-│   ├── servico_controller.py
-│   └── relatorio_controller.py
+├── backend/
+│   ├── api/          # Rotas FastAPI
+│   ├── models/       # Models SQLAlchemy
+│   ├── schemas/      # Schemas Pydantic
+│   ├── services/     # Regras de negócio
+│   ├── core/         # Configurações e exceções
+│   └── utils/        # Logger e utilitários
 │
-├── models/
-│   ├── cliente.py
-│   ├── peca.py
-│   └── servico.py
+├── frontend/
+│   ├── app.py        # Servidor Flask
+│   ├── templates/    # Templates Jinja2
+│   └── static/       # CSS e JS
 │
-├── views/
-│   ├── cliente_view.py
-│   ├── peca_view.py
-│   ├── servico_view.py
-│   └── relatorio_view.py
-│
-├── utils/
-│   └── json_manager.py
-│
-├── data/
-│   ├── clientes.json
-│   ├── pecas.json
-│   └── servicos.json
-│
-└── main.py
+├── database/         # Conexão e base SQLAlchemy
+├── scripts/          # Scripts de inicialização
+└── requirements.txt
 ```
 
 ---
 
-# ▶ Como Executar o Projeto
+## ▶️ Como Executar
 
 1. Clone o repositório
 
 ```bash
 git clone https://github.com/everton65/computer-repair-mvc-system.git
+cd computer-repair-mvc-system
 ```
 
-2. Entre na pasta do projeto
+2. Instale as dependências
 
 ```bash
-cd cleitinho-projeto
+pip install -r requirements.txt
 ```
 
-3. Execute o sistema
+3. Inicie o banco de dados
 
 ```bash
-python main.py
+python scripts/init_db.py
 ```
 
----
+4. Inicie o backend (FastAPI)
 
-# 📊 Estrutura da Arquitetura
+```bash
+python -m uvicorn backend.api.main:app --reload
+```
 
-O projeto segue o padrão **MVC (Model-View-Controller)**:
+5. Inicie o frontend (Flask) em outro terminal
 
-* **Models** → Representação das entidades do sistema (clientes, peças, serviços)
-* **Controllers** → Lógica de negócio e manipulação dos dados
-* **Views** → Interface de interação com o usuário
-* **Utils** → Funções auxiliares para manipulação de JSON
+```bash
+python frontend/app.py
+```
 
----
+6. Acesse no navegador 
 
-# 📚 Conceitos Aplicados
-
-* Organização de projetos Python
-* Arquitetura MVC
-* Persistência de dados com JSON
-* Separação de responsabilidades
+http://127.0.0.1:5000
 
 ---
 
-# 🚀 Melhorias Futuras
+## 🏗️ Arquitetura
 
-Possíveis evoluções para o sistema:
+O projeto utiliza arquitetura de **API REST desacoplada**:
 
-* Interface gráfica
-* API com FastAPI ou Flask
-* Banco de dados (SQLite ou PostgreSQL)
-* Sistema de autenticação de usuários
-* Dashboard de serviços realizados
+- **FastAPI** expõe a API REST na porta `8000`
+- **Flask** consome a API e renderiza o frontend na porta `5000`
+- **SQLAlchemy** gerencia a persistência com eager loading para evitar N+1 queries
+- **Pydantic v2** valida todos os dados de entrada e saída
 
 ---
-
-📌 Projeto desenvolvido para prática de **organização de software e arquitetura de sistemas em Python**.
