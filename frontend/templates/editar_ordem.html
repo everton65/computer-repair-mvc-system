@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+
+{% block title %}Editar Ordem de Serviço - Cleitinho TI{% endblock %}
+{% block page_title %}Editar Ordem de Serviço{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Editar Ordem de Serviço #{{ ordem.id }}</h1>
+        <span class="text-muted">Atualize os dados da ordem de serviço</span>
+    </div>
+    <a href="/ordens" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Dados da Ordem de Serviço</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="ordemForm">
+                    <!-- Status -->
+                    <div class="mb-4">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="aberta" {% if ordem.status == 'aberta' %}selected{% endif %}>Aberta</option>
+                            <option value="em_andamento" {% if ordem.status == 'em_andamento' %}selected{% endif %}>Em Andamento</option>
+                            <option value="aguardando_pecas" {% if ordem.status == 'aguardando_pecas' %}selected{% endif %}>Aguardando Peças</option>
+                            <option value="concluida" {% if ordem.status == 'concluida' %}selected{% endif %}>Concluída</option>
+                            <option value="cancelada" {% if ordem.status == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                        </select>
+                    </div>
+
+                    <!-- Cliente Selection -->
+                    <div class="mb-4">
+                        <label for="cliente_id" class="form-label">Cliente *</label>
+                        <select class="form-select" id="cliente_id" name="cliente_id" required>
+                            {% for cliente in clientes %}
+                            <option value="{{ cliente.id }}" {% if cliente.id == ordem.cliente_id %}selected{% endif %}>
+                                {{ cliente.nome }} - {{ cliente.telefone }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Equipamento -->
+                    <div class="mb-4">
+                        <label for="equipamento" class="form-label">Equipamento</label>
+                        <input type="text" class="form-control" id="equipamento" name="equipamento"
+                               value="{{ ordem.equipamento or '' }}"
+                               placeholder="Ex: Notebook Dell Inspiron 15">
+                    </div>
+
+                    <!-- Descrição do Problema -->
+                    <div class="mb-4">
+                        <label for="descricao_problema" class="form-label">Descrição do Problema</label>
+                        <textarea class="form-control" id="descricao_problema" name="descricao_problema" rows="3"
+                                  placeholder="Descreva o problema relatado pelo cliente...">{{ ordem.descricao_problema or '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Salvar Alterações
+                        </button>
+                        <a href="/ordens" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informações</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-3">
+                        <label class="form-label text-muted small">ID da Ordem</label>
+                        <p class="mb-0 fw-medium">#{{ ordem.id }}</p>
+                    </li>
+                    <li class="mb-3">
+                        <label class="form-label text-muted small">Data de Criação</label>
+                        <p class="mb-0 fw-medium">{{ ordem.data_criacao or 'N/A' }}</p>
+                    </li>
+                    <li class="mb-3">
+                        <label class="form-label text-muted small">Valor Total</label>
+                        <p class="mb-0 fw-medium text-success">R$ {{ "%.2f"|format(ordem.valor|default(0)) }}</p>
+                    </li>
+                    <li>
+                        <label class="form-label text-muted small">Status Atual</label>
+                        <div class="mt-1">
+                            {{ getStatusBadge(ordem.status) }}
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Atenção</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-0">
+                    Ao alterar o status para "Concluída", a ordem será finalizada e o valor será contabilizado no faturamento.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    document.getElementById('ordemForm').addEventListener('submit', function(e) {
+        const clienteId = document.getElementById('cliente_id').value;
+
+        if (!clienteId) {
+            e.preventDefault();
+            toast.error('Selecione um cliente');
+            return;
+        }
+    });
+</script>
+{% endblock %}

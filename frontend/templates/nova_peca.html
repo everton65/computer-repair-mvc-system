@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+
+{% block title %}Nova Peça - Cleitinho TI{% endblock %}
+{% block page_title %}Nova Peça{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Nova Peça</h1>
+        <span class="text-muted">Cadastre uma nova peça no estoque</span>
+    </div>
+    <a href="/pecas" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-box me-2"></i>Dados da Peça</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="pecaForm">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome da Peça *</label>
+                        <input type="text" class="form-control" id="nome" name="nome" required
+                               placeholder="Ex: Memória RAM 8GB DDR4">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="preco" class="form-label">Preço (R$) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="number" step="0.01" min="0" class="form-control" id="preco" name="preco" required
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="quantidade" class="form-label">Quantidade em Estoque *</label>
+                        <input type="number" min="0" class="form-control" id="quantidade" name="quantidade" required
+                               placeholder="0">
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Cadastrar Peça
+                        </button>
+                        <a href="/pecas" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Dicas</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        O nome deve ser descritivo (marca, modelo, especificações)
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        O preço deve ser maior que zero
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Mantenha o estoque atualizado
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Peças com estoque baixo serão destacadas no sistema
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Exemplos de Peças</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="py-2 border-bottom">
+                        <i class="fas fa-microchip text-primary me-2"></i>
+                        Memória RAM DDR4 8GB
+                    </li>
+                    <li class="py-2 border-bottom">
+                        <i class="fas fa-hdd text-success me-2"></i>
+                        SSD NVMe 512GB
+                    </li>
+                    <li class="py-2 border-bottom">
+                        <i class="fas fa-desktop text-warning me-2"></i>
+                        Fonte ATX 600W
+                    </li>
+                    <li class="py-2">
+                        <i class="fas fa-wifi text-info me-2"></i>
+                        Placa de Rede Wi-Fi
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    document.getElementById('pecaForm').addEventListener('submit', function(e) {
+        const nome = document.getElementById('nome').value.trim();
+        const preco = parseFloat(document.getElementById('preco').value);
+        const quantidade = parseInt(document.getElementById('quantidade').value);
+
+        if (nome.length < 2) {
+            e.preventDefault();
+            toast.error('O nome deve ter pelo menos 2 caracteres');
+            return;
+        }
+
+        if (isNaN(preco) || preco <= 0) {
+            e.preventDefault();
+            toast.error('O preço deve ser maior que zero');
+            return;
+        }
+
+        if (isNaN(quantidade) || quantidade < 0) {
+            e.preventDefault();
+            toast.error('A quantidade deve ser zero ou maior');
+            return;
+        }
+    });
+</script>
+{% endblock %}

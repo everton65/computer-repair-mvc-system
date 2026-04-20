@@ -1,0 +1,178 @@
+{% extends "layout.html" %}
+
+{% block title %}Ordem de Serviço #{{ ordem.id }} - Cleitinho TI{% endblock %}
+{% block page_title %}Ordem de Serviço #{{ ordem.id }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Ordem de Serviço #{{ ordem.id }}</h1>
+        <span class="text-muted">Detalhes da ordem de serviço</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/ordens/editar/{{ ordem.id }}" class="btn btn-warning">
+            <i class="fas fa-edit me-2"></i>Editar
+        </a>
+        <a href="/ordens" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<!-- Status Card -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h4 class="mb-1">{{ ordem.cliente_nome }}</h4>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-calendar me-2"></i>{{ ordem.data_criacao or 'Data não informada' }}
+                </p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                {{ getStatusBadge(ordem.status) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Equipamento e Problema -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-laptop me-2"></i>Equipamento e Problema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small">Equipamento</label>
+                        <p class="mb-0 fw-medium">{{ ordem.equipamento or 'Não informado' }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted small">Cliente</label>
+                        <p class="mb-0 fw-medium">{{ ordem.cliente_nome }}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="mb-0">
+                    <label class="form-label text-muted small">Descrição do Problema</label>
+                    <p class="mb-0">{{ ordem.descricao_problema or 'Sem descrição' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Itens/Serviços -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Serviços Realizados</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Descrição</th>
+                            <th class="text-end">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if ordem.itens %}
+                        {% for item in ordem.itens %}
+                        <tr>
+                            <td>{{ item.descricao }}</td>
+                            <td class="text-end">R$ {{ "%.2f"|format(item.valor) }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="2" class="text-center text-muted py-4">
+                                Nenhum item registrado
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                    <tfoot class="bg-light">
+                        <tr>
+                            <td class="fw-bold">Total</td>
+                            <td class="text-end fw-bold text-success">R$ {{ "%.2f"|format(ordem.valor|default(0)) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Ações -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Ações</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/ordens/editar/{{ ordem.id }}" class="btn btn-warning">
+                        <i class="fas fa-edit me-2"></i>Editar Ordem
+                    </a>
+                    <button onclick="printOrder()" class="btn btn-outline-secondary">
+                        <i class="fas fa-print me-2"></i>Imprimir
+                    </button>
+                    <button onclick="deleteOrdem({{ ordem.id }})" class="btn btn-outline-danger">
+                        <i class="fas fa-trash me-2"></i>Excluir
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Histórico</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <small>Ordem criada em {{ ordem.data_criacao or 'N/A' }}</small>
+                    </li>
+                    {% if ordem.status == 'concluida' %}
+                    <li class="mb-2">
+                        <i class="fas fa-flag-checkered text-primary me-2"></i>
+                        <small>Ordem concluída</small>
+                    </li>
+                    {% elif ordem.status == 'em_andamento' %}
+                    <li class="mb-2">
+                        <i class="fas fa-spinner text-warning me-2"></i>
+                        <small>Em andamento</small>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function printOrder() {
+        window.print();
+    }
+
+    function deleteOrdem(id) {
+        confirmAction(`Tem certeza que deseja excluir esta ordem de serviço?`, function() {
+            fetch(`/ordens/deletar/${id}`, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (response.ok) {
+                    toast.success('Ordem de serviço excluída com sucesso!');
+                    setTimeout(() => window.location.href = '/ordens', 1000);
+                } else {
+                    toast.error('Erro ao excluir ordem de serviço');
+                }
+            })
+            .catch(() => toast.error('Erro ao excluir ordem de serviço'));
+        });
+    }
+</script>
+{% endblock %}

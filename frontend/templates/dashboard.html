@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Oficina</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<h1>Dashboard</h1>
+
+<div>
+    <h3>Faturamento</h3>
+    <p>R$ {{ faturamento }}</p>
+</div>
+
+<div>
+    <h3>Serviços</h3>
+    <p>{{ servicos }}</p>
+</div>
+
+<div>
+    <h3>Clientes</h3>
+    <p>{{ clientes }}</p>
+</div>
+
+<div>
+    <h3>Peças em estoque</h3>
+    <p>{{ pecas }}</p>
+</div>
+
+<canvas id="graficoFaturamento"></canvas>
+
+<script src="/static/js/dashboard.js"></script>
+
+</body>
+</html>

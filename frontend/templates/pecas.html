@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+
+{% block title %}Peças - Cleitinho TI{% endblock %}
+{% block page_title %}Peças{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Peças</h1>
+        <span class="text-muted">Gerencie o estoque de peças</span>
+    </div>
+    <a href="/pecas/nova" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Nova Peça
+    </a>
+</div>
+
+<!-- Search Box -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Buscar por nome...">
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <span class="text-muted" id="totalCount">{{ pecas|length }} peça(s)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+    <table class="table" id="pecasTable">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Preço</th>
+                <th>Quantidade</th>
+                <th>Status</th>
+                <th style="width: 150px;">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for peca in pecas %}
+            <tr data-id="{{ peca.id }}">
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-warning text-white rounded me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <span class="fw-medium">{{ peca.nome }}</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="fw-semibold">R$ {{ "%.2f"|format(peca.preco) }}</span>
+                </td>
+                <td>
+                    <span class="badge {% if peca.quantidade > 10 %}bg-success{% elif peca.quantidade > 0 %}bg-warning{% else %}bg-danger{% endif %}">
+                        {{ peca.quantidade }} un.
+                    </span>
+                </td>
+                <td>
+                    {% if peca.quantidade > 10 %}
+                    <span class="badge badge-status-completed">Em estoque</span>
+                    {% elif peca.quantidade > 0 %}
+                    <span class="badge badge-status-progress">Baixo estoque</span>
+                    {% else %}
+                    <span class="badge badge-status-cancelled">Sem estoque</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="/pecas/editar/{{ peca.id }}" class="btn btn-sm btn-warning" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button onclick="deletePeca('{{ peca.id }}', '{{ peca.nome }}')" class="btn btn-sm btn-danger" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <h3>Nenhuma peça cadastrada</h3>
+                        <p class="text-muted">Clique em "Nova Peça" para começar</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#pecasTable tbody tr');
+        let count = 0;
+
+        rows.forEach(row => {
+            if (row.querySelector('.empty-state')) return;
+
+            const nome = row.cells[0].textContent.toLowerCase();
+            const match = nome.includes(filter);
+            row.style.display = match ? '' : 'none';
+            if (match) count++;
+        });
+
+        document.getElementById('totalCount').textContent = count + ' peça(s)';
+    });
+
+    // Delete peca
+    function deletePeca(id, nome) {
+        confirmAction(`Tem certeza que deseja excluir a peça "${nome}"?`, function() {
+            fetch(`/pecas/deletar/${id}`, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (response.ok) {
+                    toast.success('Peça excluída com sucesso!');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    toast.error('Erro ao excluir peça');
+                }
+            })
+            .catch(() => toast.error('Erro ao excluir peça'));
+        });
+    }
+</script>
+{% endblock %}

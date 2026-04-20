@@ -1,0 +1,43 @@
+body{
+    background:#f4f6f9;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:230px;
+    min-height:100vh;
+    transition:0.3s;
+}
+
+.sidebar .nav-link{
+    border-radius:6px;
+    margin-bottom:5px;
+}
+
+.sidebar .nav-link:hover{
+    background:#495057;
+}
+
+/* CONTENT */
+
+.content{
+    width:100%;
+}
+
+/* RESPONSIVO */
+
+@media(max-width:992px){
+
+.sidebar{
+    position:fixed;
+    left:-230px;
+    top:0;
+    z-index:1000;
+}
+
+.sidebar.active{
+    left:0;
+}
+
+}

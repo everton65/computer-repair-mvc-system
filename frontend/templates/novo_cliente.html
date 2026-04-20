@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block title %}Novo Cliente - Cleitinho TI{% endblock %}
+{% block page_title %}Novo Cliente{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Novo Cliente</h1>
+        <span class="text-muted">Cadastre um novo cliente no sistema</span>
+    </div>
+    <a href="/clientes" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Dados do Cliente</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="clienteForm">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome completo *</label>
+                        <input type="text" class="form-control" id="nome" name="nome" required
+                               placeholder="Digite o nome do cliente">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="telefone" class="form-label">Telefone *</label>
+                        <input type="tel" class="form-control" id="telefone" name="telefone" required
+                               placeholder="(00) 00000-0000">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="email" name="email" required
+                               placeholder="exemplo@email.com">
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Cadastrar
+                        </button>
+                        <a href="/clientes" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Dicas</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        O nome deve ter pelo menos 3 caracteres
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        O telefone deve ter pelo menos 10 dígitos
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        O email deve ser válido
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Phone mask
+    document.getElementById('telefone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+
+        if (value.length > 6) {
+            value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+        } else if (value.length > 2) {
+            value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+        } else if (value.length > 0) {
+            value = `(${value}`;
+        }
+
+        e.target.value = value;
+    });
+
+    // Form validation
+    document.getElementById('clienteForm').addEventListener('submit', function(e) {
+        const nome = document.getElementById('nome').value.trim();
+        const telefone = document.getElementById('telefone').value.replace(/\D/g, '');
+        const email = document.getElementById('email').value.trim();
+
+        if (nome.length < 3) {
+            e.preventDefault();
+            toast.error('O nome deve ter pelo menos 3 caracteres');
+            return;
+        }
+
+        if (telefone.length < 10) {
+            e.preventDefault();
+            toast.error('O telefone deve ter pelo menos 10 dígitos');
+            return;
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+
+{% block title %}Clientes - Cleitinho TI{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Clientes</h1>
+        <span class="text-muted">Gerencie os clientes cadastrados</span>
+    </div>
+    <a href="/clientes/novo" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Novo Cliente
+    </a>
+</div>
+
+<!-- Search Box -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Buscar por nome ou email...">
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <span class="text-muted" id="totalCount">{{ clientes|length }} cliente(s)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+    <table class="table" id="clientesTable">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>Email</th>
+                <th style="width: 150px;">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr data-id="{{ cliente.id }}">
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            {{ cliente.nome[0]|upper }}
+                        </div>
+                        <span class="fw-medium">{{ cliente.nome }}</span>
+                    </div>
+                </td>
+                <td>{{ cliente.telefone }}</td>
+                <td>{{ cliente.email }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="/clientes/editar/{{ cliente.id }}" class="btn btn-sm btn-warning" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button onclick="deleteCliente('{{ cliente.id }}', '{{ cliente.nome }}')" class="btn btn-sm btn-danger" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-users-slash"></i>
+                        <h3>Nenhum cliente cadastrado</h3>
+                        <p class="text-muted">Clique em "Novo Cliente" para começar</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#clientesTable tbody tr');
+
+        rows.forEach(row => {
+            const nome = row.cells[0].textContent.toLowerCase();
+            const email = row.cells[2].textContent.toLowerCase();
+            const match = nome.includes(filter) || email.includes(filter);
+            row.style.display = match ? '' : 'none';
+        });
+    });
+
+    // Delete cliente
+    function deleteCliente(id, nome) {
+        confirmAction(`Tem certeza que deseja excluir o cliente "${nome}"?`, function() {
+            fetch(`/clientes/deletar/${id}`, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (response.ok) {
+                    toast.success('Cliente excluído com sucesso!');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    toast.error('Erro ao excluir cliente');
+                }
+            })
+            .catch(() => toast.error('Erro ao excluir cliente'));
+        });
+    }
+</script>
+{% endblock %}

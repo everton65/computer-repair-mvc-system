@@ -1,0 +1,150 @@
+{% extends "layout.html" %}
+
+{% block title %}Novo Serviço - Cleitinho TI{% endblock %}
+{% block page_title %}Novo Serviço{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Novo Serviço</h1>
+        <span class="text-muted">Registre um novo serviço realizado</span>
+    </div>
+    <a href="/servicos" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Dados do Serviço</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="servicoForm">
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição do Serviço *</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="3" required
+                                  placeholder="Descreva o serviço realizado..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="valor" class="form-label">Valor (R$) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="number" step="0.01" min="0" class="form-control" id="valor" name="valor" required
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cliente_id" class="form-label">Cliente *</label>
+                        <select class="form-select" id="cliente_id" name="cliente_id" required>
+                            <option value="">Selecione um cliente</option>
+                            {% for cliente in clientes %}
+                            <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Cadastrar Serviço
+                        </button>
+                        <a href="/servicos" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Dicas</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Descreva detalhadamente o serviço realizado
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        O valor deve ser maior que zero
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Selecione o cliente relacionado ao serviço
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        O cliente será notificado sobre o serviço
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Últimos Clientes</h5>
+            </div>
+            <div class="card-body">
+                {% if clientes %}
+                <ul class="list-unstyled mb-0">
+                    {% for cliente in clientes[:5] %}
+                    <li class="d-flex justify-content-between align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.75rem;">
+                                {{ cliente.nome[0]|upper }}
+                            </div>
+                            <span>{{ cliente.nome }}</span>
+                        </div>
+                        <small class="text-muted">{{ cliente.telefone }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted mb-0">Nenhum cliente cadastrado</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Format currency
+    const valorInput = document.getElementById('valor');
+    valorInput.addEventListener('input', function(e) {
+        // Allow only numbers and decimals
+        this.value = this.value.replace(/[^0-9.]/g, '');
+    });
+
+    // Form validation
+    document.getElementById('servicoForm').addEventListener('submit', function(e) {
+        const descricao = document.getElementById('descricao').value.trim();
+        const valor = parseFloat(document.getElementById('valor').value);
+        const clienteId = document.getElementById('cliente_id').value;
+
+        if (descricao.length < 3) {
+            e.preventDefault();
+            toast.error('A descrição deve ter pelo menos 3 caracteres');
+            return;
+        }
+
+        if (isNaN(valor) || valor <= 0) {
+            e.preventDefault();
+            toast.error('O valor deve ser maior que zero');
+            return;
+        }
+
+        if (!clienteId) {
+            e.preventDefault();
+            toast.error('Selecione um cliente');
+            return;
+        }
+    });
+</script>
+{% endblock %}

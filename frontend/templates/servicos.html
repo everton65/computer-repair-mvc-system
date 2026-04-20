@@ -1,0 +1,133 @@
+{% extends "layout.html" %}
+
+{% block title %}Serviços - Cleitinho TI{% endblock %}
+{% block page_title %}Serviços{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Serviços</h1>
+        <span class="text-muted">Gerencie os serviços realizados</span>
+    </div>
+    <a href="/servicos/novo" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Novo Serviço
+    </a>
+</div>
+
+<!-- Search Box -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Buscar por descrição ou cliente...">
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <span class="text-muted" id="totalCount">{{ servicos|length }} serviço(s)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+    <table class="table" id="servicosTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Descrição</th>
+                <th>Cliente</th>
+                <th>Valor</th>
+                <th style="width: 150px;">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for servico in servicos %}
+            <tr data-id="{{ servico.id }}">
+                <td>
+                    <span class="badge bg-secondary">#{{ servico.id }}</span>
+                </td>
+                <td>
+                    <span class="fw-medium">{{ servico.descricao }}</span>
+                </td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-info text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.875rem;">
+                            {{ servico.cliente_nome[0]|upper if servico.cliente_nome else '?' }}
+                        </div>
+                        <span>{{ servico.cliente_nome or 'Desconhecido' }}</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="fw-semibold text-success">R$ {{ "%.2f"|format(servico.valor) }}</span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="/servicos/editar/{{ servico.id }}" class="btn btn-sm btn-warning" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button onclick="deleteServico('{{ servico.id }}', '{{ servico.descricao }}')" class="btn btn-sm btn-danger" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-tools"></i>
+                        <h3>Nenhum serviço cadastrado</h3>
+                        <p class="text-muted">Clique em "Novo Serviço" para começar</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#servicosTable tbody tr');
+        let count = 0;
+
+        rows.forEach(row => {
+            if (row.querySelector('.empty-state')) return;
+
+            const descricao = row.cells[1].textContent.toLowerCase();
+            const cliente = row.cells[2].textContent.toLowerCase();
+            const match = descricao.includes(filter) || cliente.includes(filter);
+            row.style.display = match ? '' : 'none';
+            if (match) count++;
+        });
+
+        document.getElementById('totalCount').textContent = count + ' serviço(s)';
+    });
+
+    // Delete servico
+    function deleteServico(id, descricao) {
+        confirmAction(`Tem certeza que deseja excluir o serviço "${descricao}"?`, function() {
+            fetch(`/servicos/deletar/${id}`, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (response.ok) {
+                    toast.success('Serviço excluído com sucesso!');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    toast.error('Erro ao excluir serviço');
+                }
+            })
+            .catch(() => toast.error('Erro ao excluir serviço'));
+        });
+    }
+</script>
+{% endblock %}
